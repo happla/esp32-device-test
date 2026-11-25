@@ -9,6 +9,7 @@ __pycache__/
 # ESP-IDF build files
 firmware/build/
 firmware/managed_components/
+firmware/sdkconfig.old
 
 # Robot Framework results
 results/
