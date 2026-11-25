@@ -1,0 +1,21 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# ESP-IDF build files
+firmware/build/
+firmware/managed_components/
+
+# Robot Framework results
+results/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
