@@ -1,14 +1,14 @@
-  # Author happla
+# Author: happla
 
 *** Settings ***
 Library           ESP32Serial.py
+Library           ESP32GPIO.py
 
-Suite Setup       Connect    ${PORT}    ${BAUDRATE}
+Suite Setup       Connect To Device    ${BAUDRATE}
 Suite Teardown    Close Connection
 
 
 *** Variables ***
-${PORT}           /dev/cu.usbmodem101
 ${BAUDRATE}       115200
 
 
@@ -17,27 +17,48 @@ Device Responds To Ping
     ${response}=    Send Command    PING
     Should Be Equal    ${response}    PONG
 
+
 Firmware Version Is Correct
     ${response}=    Send Command    GET_VERSION
     Should Be Equal    ${response}    VERSION:1.0.0
+
 
 Device Reports Uptime
     ${response}=    Send Command    GET_UPTIME
     Should Match Regexp    ${response}    ^UPTIME:[0-9]+$
 
-LED Blink Patterns per 5 seconds
-    # apprx 4 cycles per second
+
+LED Blink Patterns
+    # Approximately 4 cycles per second
     Repeat Keyword    20 times    Blink LED    0.125s
 
     # 2 cycles per second
     Repeat Keyword    10 times    Blink LED    0.25s
 
     # 1 cycle per second
-    Repeat Keyword    5 times     Blink LED    0.5s
+    Repeat Keyword    5 times    Blink LED    0.5s
 
     ${state}=    Send Command    GET_LED
     Should Be Equal    ${state}    LED:OFF
 
+
+LED Blinks Five Times Per Second
+    ${count}=    Measure LED Pulses    1.0    5
+    Should Be Equal As Integers    ${count}    5
+
+
+LED Blinks Exactly Five Times
+    ${count}=    Count LED Blinks    5
+    Should Be Equal As Integers    ${count}    5
+
+
+Unknown Command Is Rejected
+    ${response}=    Send Command    INVALID_COMMAND
+    Should Be Equal    ${response}    ERROR:UNKNOWN_COMMAND
+
+GPIO Loopback Verification Passes
+    ${response}=    Send Command    VERIFY_LOOPBACK
+    Should Be Equal    ${response}    LOOPBACK:PASS
 
 *** Keywords ***
 Blink LED
@@ -47,7 +68,3 @@ Blink LED
     Send Command    LED OFF
     Sleep    ${half_period}
 
-
-Unknown Command Is Rejected
-    ${response}=    Send Command    INVALID_COMMAND
-    Should Be Equal    ${response}    ERROR:UNKNOWN_COMMAND
